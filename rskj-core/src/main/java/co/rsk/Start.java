@@ -111,11 +111,12 @@ public class Start {
         if (RskSystemProperties.RSKCONFIG.isRpcEnabled()) {
             logger.info("RPC enabled");
             Web3 web3Service = new Web3RskImpl(rsk);
-            JsonRpcWeb3ServerHandler serverHandler = new JsonRpcWeb3ServerHandler(web3Service, RskSystemProperties.RSKCONFIG.getRpcModules(), new CorsConfiguration());
+            JsonRpcWeb3ServerHandler serverHandler = new JsonRpcWeb3ServerHandler(web3Service, RskSystemProperties.RSKCONFIG.getRpcModules());
             new JsonRpcNettyServer(
                 RskSystemProperties.RSKCONFIG.RpcPort(),
                 RskSystemProperties.RSKCONFIG.soLingerTime(),
                 Boolean.TRUE,
+                new CorsConfiguration(),
                 serverHandler
             ).start();
         }

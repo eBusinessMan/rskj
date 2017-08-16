@@ -1,6 +1,5 @@
 package org.ethereum.rpc;
 
-import co.rsk.rpc.CorsConfiguration;
 import co.rsk.rpc.JsonRpcFilterServer;
 import co.rsk.rpc.ModuleDescription;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -37,10 +36,8 @@ public class JsonRpcWeb3ServerHandler extends SimpleChannelInboundHandler<FullHt
     private final ObjectMapper mapper = new ObjectMapper();
     private final JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
     private final JsonRpcFilterServer jsonRpcServer;
-    private final CorsConfiguration corsConfiguration;
 
-    public JsonRpcWeb3ServerHandler(Web3 service, List<ModuleDescription> filteredModules, CorsConfiguration corsConfiguration) {
-        this.corsConfiguration = corsConfiguration;
+    public JsonRpcWeb3ServerHandler(Web3 service, List<ModuleDescription> filteredModules) {
         this.jsonRpcServer = new JsonRpcFilterServer(service, service.getClass(), filteredModules);
         jsonRpcServer.setErrorResolver(new MultipleErrorResolver(new RskErrorResolver(), AnnotationsErrorResolver.INSTANCE, DefaultErrorResolver.INSTANCE));
     }
@@ -49,14 +46,7 @@ public class JsonRpcWeb3ServerHandler extends SimpleChannelInboundHandler<FullHt
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
         HttpMethod httpMethod = request.getMethod();
         HttpResponse response;
-        if (HttpMethod.OPTIONS.equals(httpMethod)) {
-            response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-            response.headers()
-                .add(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_METHODS, String.join(", ", HttpMethod.POST.name(), HttpMethod.GET.name(), HttpMethod.OPTIONS.name()))
-                .add(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_HEADERS, HttpHeaders.Names.CONTENT_TYPE)
-                .add(HttpHeaders.Names.ACCESS_CONTROL_MAX_AGE, String.valueOf(600))
-                .add(HttpHeaders.Names.ALLOW, String.join(", ", HttpMethod.GET.name(), HttpMethod.HEAD.name(), HttpMethod.POST.name(), HttpMethod.TRACE.name(), HttpMethod.OPTIONS.name()));
-        } else if (HttpMethod.POST.equals(httpMethod)) {
+        if (HttpMethod.POST.equals(httpMethod)) {
             ByteBuf responseContent = Unpooled.buffer();
             HttpResponseStatus responseStatus = HttpResponseStatus.OK;
             try (ByteBufOutputStream os = new ByteBufOutputStream(responseContent);
@@ -76,10 +66,6 @@ public class JsonRpcWeb3ServerHandler extends SimpleChannelInboundHandler<FullHt
             }
         } else {
             response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_IMPLEMENTED);
-        }
-        if (corsConfiguration.hasHeader()) {
-            response.headers().add(HttpHeaders.newEntity(HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN), this.corsConfiguration.getHeader());
-            response.headers().add(HttpHeaders.newEntity(HttpHeaders.Names.VARY), HttpHeaders.Names.ORIGIN);
         }
         ctx.write(response).addListener(ChannelFutureListener.CLOSE);
     }

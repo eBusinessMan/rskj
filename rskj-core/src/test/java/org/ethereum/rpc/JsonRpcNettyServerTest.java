@@ -38,8 +38,8 @@ public class JsonRpcNettyServerTest {
         int randomPort = 9999;//new ServerSocket(0).getLocalPort();
 
         List<ModuleDescription> filteredModules = Collections.singletonList(new ModuleDescription("web3", "1.0", true, Collections.emptyList(), Collections.emptyList()));
-        JsonRpcWeb3ServerHandler serverHandler = new JsonRpcWeb3ServerHandler(web3Mock, filteredModules, mockCorsConfiguration);
-        JsonRpcNettyServer server = new JsonRpcNettyServer(randomPort, 0, Boolean.TRUE, serverHandler);
+        JsonRpcWeb3ServerHandler serverHandler = new JsonRpcWeb3ServerHandler(web3Mock, filteredModules);
+        JsonRpcNettyServer server = new JsonRpcNettyServer(randomPort, 0, Boolean.TRUE, mockCorsConfiguration, serverHandler);
         server.start();
 
         HttpURLConnection conn = sendJsonRpcMessage(randomPort);
