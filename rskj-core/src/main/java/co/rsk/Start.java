@@ -113,7 +113,7 @@ public class Start {
             Web3 web3Service = new Web3RskImpl(rsk);
             JsonRpcWeb3ServerHandler serverHandler = new JsonRpcWeb3ServerHandler(web3Service, RskSystemProperties.RSKCONFIG.getRpcModules());
             new JsonRpcNettyServer(
-                RskSystemProperties.RSKCONFIG.RpcPort(),
+                RskSystemProperties.RSKCONFIG.rpcPort(),
                 RskSystemProperties.RSKCONFIG.soLingerTime(),
                 Boolean.TRUE,
                 new CorsConfiguration(),
